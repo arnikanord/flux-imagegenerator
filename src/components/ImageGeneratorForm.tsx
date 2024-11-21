@@ -30,6 +30,8 @@ export function ImageGeneratorForm({ formData, loading, onSubmit, onChange }: Im
         value={formData.ref_image}
         onChange={onChange}
         placeholder="https://example.com/image.jpg"
+        required={formData.similarity > 0}
+        hint={formData.similarity > 0 ? "Required when similarity is enabled" : undefined}
       />
 
       <div>
@@ -51,7 +53,7 @@ export function ImageGeneratorForm({ formData, loading, onSubmit, onChange }: Im
         onChange={onChange}
         min={0}
         max={10}
-        hint="0 = Minimal similarity, 10 = Almost identical"
+        hint={formData.ref_image ? "0 = Minimal similarity, 10 = Almost identical" : "Reference image required for similarity"}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -109,7 +111,7 @@ export function ImageGeneratorForm({ formData, loading, onSubmit, onChange }: Im
 
       <button
         type="submit"
-        disabled={loading}
+        disabled={loading || (formData.similarity > 0 && !formData.ref_image)}
         className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-md transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {loading ? (

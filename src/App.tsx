@@ -43,25 +43,40 @@ function App() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate reference image when similarity is enabled
+    if (formData.similarity > 0 && !formData.ref_image) {
+      toast.error('Reference image URL is required when using similarity');
+      return;
+    }
+
     setLoading(true);
 
     try {
       console.log('Sending request with data:', formData);
       
+      // Only include ref_image and similarity if ref_image is provided
+      const requestBody = {
+        ...formData,
+        width: Number(formData.width),
+        height: Number(formData.height),
+        steps: Number(formData.steps),
+        seed: Number(formData.seed),
+      };
+
+      // Add similarity and ref_image only if ref_image is provided
+      if (formData.ref_image) {
+        requestBody.similarity = Number(formData.similarity) / 10; // Convert 0-10 scale to 0-1 for API
+        requestBody.ref_image = formData.ref_image;
+      }
+
       const response = await fetch(API_URL, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${import.meta.env.VITE_API_KEY}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          ...formData,
-          width: Number(formData.width),
-          height: Number(formData.height),
-          steps: Number(formData.steps),
-          seed: Number(formData.seed),
-          similarity: Number(formData.similarity) / 10 // Convert 0-10 scale to 0-1 for API
-        })
+        body: JSON.stringify(requestBody)
       });
 
       console.log('Response status:', response.status);
